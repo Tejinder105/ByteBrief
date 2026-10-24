@@ -1,0 +1,32 @@
+[project]
+name = "bytebrief"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.11"
+dependencies = [
+    "alembic>=1.20.1",
+    "beautifulsoup4>=4.15.0",
+    "fastapi>=0.162.0",
+    "feedparser>=6.0.14",
+    "httpx>=0.28.1",
+    "jinja2>=3.1.6",
+    "openai>=3.37.0",
+    "psycopg[binary]>=3.3.6",
+    "pydantic-settings>=2.16.1",
+    "python-multipart>=0.0.32",
+    "sqlalchemy>=2.1.6",
+    "tenacity>=9.2.1",
+    "trafilatura>=2.3.1",
+    "uvicorn[standard]>=0.54.0",
+    "youtube-transcript-api>=1.2.4",
+]
+
+[dependency-groups]
+dev = [
+    "mypy>=2.4.0",
+    "pytest>=9.1.1",
+    "pytest-cov>=7.1.0",
+    "respx>=0.23.1",
+    "ruff>=0.17.2",
+]

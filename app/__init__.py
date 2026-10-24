@@ -1,0 +1,1 @@
+"""ByteBrief application package."""
