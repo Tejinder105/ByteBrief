@@ -117,6 +117,13 @@ def _video_id(entry: Any) -> str:
     raise ValueError("YouTube feed entry has no video ID")
 
 
+def _is_short(entry: Any) -> bool:
+    links = getattr(entry, "links", [])
+    urls = [str(getattr(link, "href", "")) for link in links]
+    urls.append(str(getattr(entry, "link", "")))
+    return any("/shorts/" in url.lower() for url in urls)
+
+
 def parse_feed(
     feed_content: bytes | str,
     channel_id: str | None = None,
@@ -127,6 +134,8 @@ def parse_feed(
     parsed = feedparser.parse(feed_content)
     videos: list[ChannelVideo] = []
     for entry in parsed.entries:
+        if _is_short(entry):
+            continue
         video_id = _video_id(entry)
         videos.append(
             ChannelVideo(

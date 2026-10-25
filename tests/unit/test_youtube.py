@@ -108,6 +108,28 @@ def test_fetch_recent_videos_filters_old_entries_and_deduplicates() -> None:
     assert [video.video_id for video in videos] == ["new"]
 
 
+def test_parse_feed_skips_shorts() -> None:
+    content = """<feed xmlns="http://www.w3.org/2005/Atom"
+        xmlns:yt="http://www.youtube.com/xml/schemas/2015">
+      <entry>
+        <yt:videoId>short-video</yt:videoId>
+        <title>Short</title>
+        <link rel="alternate" href="https://www.youtube.com/shorts/short-video"/>
+        <published>2026-10-25T10:00:00+00:00</published>
+      </entry>
+      <entry>
+        <yt:videoId>long-video</yt:videoId>
+        <title>Long video</title>
+        <link rel="alternate" href="https://www.youtube.com/watch?v=long-video"/>
+        <published>2026-10-25T10:00:00+00:00</published>
+      </entry>
+    </feed>"""
+
+    videos = parse_feed(content)
+
+    assert [video.video_id for video in videos] == ["long-video"]
+
+
 def test_fetch_transcript_flattens_snippets() -> None:
     transcript = [SimpleNamespace(text=" Hello "), SimpleNamespace(text="world")]
     api = Mock()

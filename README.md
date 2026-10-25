@@ -29,3 +29,55 @@ uv run python main.py https://www.youtube.com/channel/UC1234567890123456789012 -
 
 Transcript availability depends on whether the video exposes captions. Handle
 resolution requires the channel page to expose its canonical `UC...` ID.
+
+The Python API is exposed through `YouTubeScraper`, which provides
+`resolve_channel_id`, `fetch_recent_videos`, `get_transcript`, and
+`fetch_recent_videos_with_transcripts` methods. The existing module-level
+functions remain available as compatibility wrappers.
+
+## Local PostgreSQL
+
+Copy `example.environment.env` to `.env`, then start PostgreSQL:
+
+```powershell
+Copy-Item example.environment.env .env
+docker compose --env-file .env -f docker\docker-compose.yml up -d
+```
+
+Create the tables after the database is healthy:
+
+```powershell
+uv run python -m app.database.create_tables
+```
+
+Run all configured scrapers and persist their results:
+
+```powershell
+uv run python -c "from app.services.runner import run_scrapers; results = run_scrapers(); print({key: len(value) for key, value in results.items()})"
+```
+
+The runner uses a 24-hour lookback by default. Pass `hours=168` for the
+previous seven days.
+
+After ingestion, enrich stored Anthropic articles with Markdown and YouTube
+videos with transcripts:
+
+```powershell
+uv run python -c "from app.services.enrich import enrich_articles; print(enrich_articles())"
+```
+
+Or run both stages together:
+
+```powershell
+uv run python -c "from app.services.runner import run_pipeline; print(run_pipeline())"
+```
+
+Create digests for stored articles that do not have one:
+
+```powershell
+uv run python -c "from app.services.process_digest import process_digests; print(process_digests())"
+```
+
+The digest processor stores one digest per article in the `digests` table and
+uses the article's extracted Markdown, transcript, or RSS description as its
+input.
